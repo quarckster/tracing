@@ -72,9 +72,31 @@
 						<ul class="dropdown-menu">
 							<li class="nav-header">Фильтры</li>
 							<li><?php echo $this->Html->link(__('Все', true), array('controller' => 'second_stages', 'action' => 'index')); ?></li>
+							<li><?php echo $this->Html->link(__('КЦ', true), array('controller' => 'second_stages', 'action' => 'find', 'order_in' => 'КЦ')); ?></li>
+							<li><?php echo $this->Html->link(__('РХ', true), array('controller' => 'second_stages', 'action' => 'find', 'order_in' => 'РХ')); ?></li>
+							<li><?php echo $this->Html->link(__('Другие РИЦ', true), array('controller' => 'second_stages', 'action' => 'find', 'order_in' => 'Другие РИЦ')); ?></li>
+							<li><?php echo $this->Html->link(__('Не закрытые', true), array('controller' => 'second_stages', 'action' => 'find', 'filter' => 'not_closed')); ?></li>
+							<li><?php echo $this->Html->link(__('Без шаблона', true), array('controller' => 'second_stages', 'action' => 'find', 'filter' => 'without_cis')); ?></li>							
 							<li class="divider"></li>
 							<li><?php echo $this->Html->link(__('Поиск', true), array('controller' => 'second_stages', 'action' => 'find')); ?></li>
 							<li><?php echo $this->Html->link(__('Поиск в архиве', true), array('controller' => 'second_stage_archives', 'action' => 'find')); ?></li>
+						</ul>
+					</li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Обучение<b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li class="nav-header">Фильтры</li>
+							<li><?php echo $this->Html->link(__('Все', true), array('controller' => 'trainings', 'action' => 'index')); ?></li>
+							<li><?php echo $this->Html->link(__('Обучение не проведено', true), array('controller' => 'trainings', 'action' => 'find', 'filter' => 'in_progress')); ?></li>
+							<li><?php echo $this->Html->link(__('Просроченные', true), array('controller' => 'trainings', 'action' => 'find', 'filter' => 'expired')); ?></li>
+							<li><?php echo $this->Html->link(__('Незавершённые', true), array('controller' => 'trainings', 'action' => 'find', 'filter' => 'not_completed')); ?></li>
+							<li><?php echo $this->Html->link(__('Срочные', true), array('controller' => 'trainings', 'action' => 'find', 'filter' => 'urgenеtly')); ?></li>
+							<li><?php echo $this->Html->link(__('Завершённые', true), array('controller' => 'trainings', 'action' => 'find', 'filter' => 'completed')); ?></li>
+							<li><?php echo $this->Html->link(__('Новые', true), array('controller' => 'trainings', 'action' => 'find', 'filter' => 'new')); ?></li>
+							<li class="divider"></li>
+							<li><?php echo $this->Html->link(__('Добавить заявку', true), array('controller' => 'trainings', 'action' => 'add')); ?></li>
+							<li class="divider"></li>
+							<li><?php echo $this->Html->link(__('Поиск', true), array('controller' => 'trainings', 'action' => 'find')); ?></li>
 						</ul>
 					</li>
 					<li><a href="/stats">Статистика</a></li>

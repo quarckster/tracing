@@ -29,7 +29,11 @@
 		<td><?php echo $call['Call']['organization']; ?>&nbsp;</td>
 		<td><?php echo $call['Call']['contact_data']; ?>&nbsp;</td>
 		<td><?php echo $call['Call']['actions']; ?>&nbsp;</td>
-		<td><?php if ($call['Call']['cis_template'] == 1){ echo '<i class="icon-ok aligncenter"> </i>'; } ?>&nbsp;</td>
+		<td><?php if ($call['Call']['cis_template'] == 1) {
+			echo '<i class="icon-ok aligncenter"> </i>';
+		} elseif ($call['Call']['cis_template'] == 2) {
+			echo '<i class="icon-minus-sign aligncenter"> </i>';
+		} ?>&nbsp;</td>
 		<td>
 			<div class="btn-group pull-right"><?php
 				echo $this->Html->link('<i class="icon-file"> </i>', array('action' => 'view', $call['Call']['id']), array('class' => 'btn', 'escape' => false)); 

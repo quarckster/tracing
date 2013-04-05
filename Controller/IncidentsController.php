@@ -135,7 +135,7 @@ class IncidentsController extends AppController {
 		if ($this->request->is('post')) {
 			$this->Incident->create();
 			$this->request->data['Incident']['user_sid'] = $this->Auth->user('user_sid');
-			$this->request->data['Incident']['start_date'] = date('Y-m-d');
+			$this->request->data['Incident']['start_date'] = date('Y-m-d H:m');
 			if (!empty($this->request->data['Detail']['notify'])) {
 				$n = count($this->request->data['Detail']);
 				$notified_arr = explode(', ', $this->request->data['Detail']['notify']);
@@ -150,7 +150,7 @@ class IncidentsController extends AppController {
 				if (!empty($this->request->data['Detail'])) {
 					$incident_id = $this->Incident->id;
 					$displayname = $this->request->data['Detail'];
-					$this->Incident->send_email_notification($displayname, null, $incident_id, 'new_mail');
+					$this->Incident->SendEmailNotification($displayname, null, $incident_id, 'new_mail');
 				}			
 				$this->Session->setFlash('Входящее добавлено', 'message', array('heading' => 'Успех', 'class' => 'alert alert-success span2'));
 				$this->redirect(array('action' => 'index'));
@@ -180,7 +180,7 @@ class IncidentsController extends AppController {
 					$new_displayname = array_shift($this->request->data['Detail']); // Вычленяем первый элемент массива
 				}
 				if (isset($new_displayname) && ($old_displayname != $new_displayname)) { // Провереям и сравниваем значения для уведомления участника
-					$this->Incident->send_email_notification($new_displayname['user_sid'], $new_displayname['id'], $this->data['Incident']['id'], 'edit_incident');
+					$this->Incident->SendEmailNotification($new_displayname['user_sid'], $new_displayname['id'], $this->data['Incident']['id'], 'edit_incident');
 				}
 				$this->Session->setFlash(__('Изме­не­ния сохранен­ы'));
 				$this->redirect(array('action' => 'view', $this->data['Incident']['id']));
@@ -220,7 +220,7 @@ class IncidentsController extends AppController {
 				if (!empty($next) && $next['Detail']['notify_only'] != 1) {
 					$displayname = $next['Detail']['user_sid'];
 					$detail_id = $next['Detail']['id'];
-					$this->Incident->send_email_notification($displayname, $detail_id, $incident_id, 'new_comment');
+					$this->Incident->SendEmailNotification($displayname, $detail_id, $incident_id, 'new_comment');
 				}
 				$this->Session->setFlash('Изме­не­ния сохранен­ы', 'message', array('heading' => 'Успех', 'class' => 'alert alert-success span2'));
 				$this->redirect(array('action' => 'view', $incident_id));

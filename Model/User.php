@@ -53,20 +53,21 @@ class User extends AppModel {
 		return true;
 	}
 	
-	private function GetSidFromName($displayname) {
-	    set_time_limit(0);
-	    $USERNAMETOSEARCH = iconv('utf-8', 'cp1251', $displayname);
+	public function GetSidFromName($displayname) {
+		set_time_limit(0);
+		$USERNAMETOSEARCH = iconv('utf-8', 'cp1251', $displayname);
 
 	// Set the base dn to search the entire directory.
-	    $base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
+		$base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
 	// connect to server
-	    if (!($connect = @ldap_connect("ldap://10.188.0.10")))
+		if (!($connect = @ldap_connect("ldap://10.188.0.10")))
 		die("Could not connect to ldap server");
 	// bind to server
-	    if (!($bind = @ldap_bind($connect, "*", "*")))
+		if (!($bind = @ldap_bind($connect, "ARIC188\addst", "addstaric188")))
 		die("Unable to bind to server");
-	    if ($connect) {
-		$filter = "(sAMAccountName=" . $USERNAMETOSEARCH . ")";
+		if ($connect) {
+		//$filter = "(sAMAccountName=" . $USERNAMETOSEARCH . ")";
+		$filter = "(displayname=" . $USERNAMETOSEARCH . ")";
 		$sr = ldap_search($connect, $base_dn, $filter);
 		$entries = ldap_get_entries($connect, $sr);
 
@@ -82,21 +83,21 @@ class User extends AppModel {
 		$subauths = hexdec($sidinhex[7]);
 	// Loop through Sub Authorities
 		for ($i = 0; $i < $subauths; $i++) {
-		    $start = 8 + (4 * $i);
-		    // X amount of 32Bit (4 Byte) Sub Authorities
-		    $sid = $sid . "-" . hexdec($sidinhex[$start + 3] . $sidinhex[$start + 2] . $sidinhex[$start + 1] . $sidinhex[$start]);
+			$start = 8 + (4 * $i);
+			// X amount of 32Bit (4 Byte) Sub Authorities
+			$sid = $sid . "-" . hexdec($sidinhex[$start + 3] . $sidinhex[$start + 2] . $sidinhex[$start + 1] . $sidinhex[$start]);
 		}
 		ldap_close($connect);
-	    }
-	    return $sid;
+		}
+		return $sid;
 	}
-	
-	private function GetDisplayNameFromLogin($results) {
+
+	public function GetDisplayNameFromLogin($results) {
 		set_time_limit(0);
 		$base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
 		if (!($connect = @ldap_connect("ldap://10.188.0.10")))
 			die("Could not connect to ldap server");
-		if (!($bind = @ldap_bind($connect, "*", "*")))
+		if (!($bind = @ldap_bind($connect, "ARIC188\addst", "addstaric188")))
 			die("Unable to bind to server");
 		if ($connect) {
 			$filter = "(sAMAccountName=" . $results . ")";
@@ -105,6 +106,41 @@ class User extends AppModel {
 			$results = iconv('cp1251', 'utf-8', $entries[0]['displayname'][0]);
 			ldap_close($connect);
 		}
-	    	return $results;
+			return $results;
+	}
+
+	public function GetNameFromSid($results) {
+		set_time_limit(0);
+		$base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
+		if (!($connect = @ldap_connect("ldap://10.188.0.10")))
+			die("Could not connect to ldap server");
+		if (!($bind = @ldap_bind($connect, "ARIC188\addst", "addstaric188")))
+			die("Unable to bind to server");
+		if ($connect) {
+			$filter = "(objectSid=" . $results . ")";
+			$sr = ldap_search($connect, $base_dn, $filter);
+			$entries = ldap_get_entries($connect, $sr);
+			$results = iconv('cp1251', 'utf-8', $entries[0]['displayname'][0]);
+			ldap_close($connect);
+		}
+		return $results;
+	}
+
+	public function GetEmailFromName($displayname) {
+		set_time_limit(0);
+		$USERNAMETOSEARCH = iconv('utf-8', 'cp1251', $displayname);
+		$base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
+		if (!($connect = @ldap_connect("ldap://10.188.0.10")))
+			die("Could not connect to ldap server");
+		if (!($bind = @ldap_bind($connect, "ARIC188\addst", "addstaric188")))
+			die("Unable to bind to server");
+		if ($connect) {
+			$filter = "(displayname=" . $USERNAMETOSEARCH . ")";
+			$sr = ldap_search($connect, $base_dn, $filter);
+			$entries = ldap_get_entries($connect, $sr);
+			$email = $entries[0]['mail'][0];
+			ldap_close($connect);
+		}
+	    return $email;
 	}
 }

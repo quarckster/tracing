@@ -45,7 +45,10 @@ class CallsController extends AppController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->Call->recursive = 2;
-		$this->set('call', $this->Call->read(null, $id));
+		$call = $this->Call->read(null, $id);
+		$count_second_stages = count($call['SecondStage']);
+		$this->set('count_second_stages', $count_second_stages);
+		$this->set('call', $call);
 	}
 	
 	public function history($id = null) {
@@ -72,10 +75,10 @@ class CallsController extends AppController {
 				$call_id = $this->Call->id;
 				if (!empty($this->request->data['CallsDetail'])) {
 					$displayname = $this->request->data['CallsDetail'];
-					$this->Call->send_email_notification($displayname, null, $call_id, 'new_call');
+					$this->Call->SendEmailNotification($displayname, null, $call_id, 'new_call');
 				}
 				if (!empty($this->request->data['Call']['notified'])) {
-					$this->Call->send_email_notification($this->request->data['Call']['notified'], null, $call_id, 'notify');	
+					$this->Call->SendEmailNotification($this->request->data['Call']['notified'], null, $call_id, 'notify');	
 				}
 				$this->Session->setFlash('Данные о звонке сохранены', 'message', array('heading' => 'Успех', 'class' => 'alert alert-success span3'));
 				$this->redirect(array('action' => 'index'));
@@ -104,20 +107,21 @@ class CallsController extends AppController {
  */
 	public function edit($id = null) {
  		$this->Call->id = $id;
+ 		$this->Call->recursive = -1;
 		if (!$this->Call->exists()) {
 			throw new NotFoundException(__('Такого обращения нет'));
 		}
 		if ($this->request->is('post') || $this->request->is('put')) {
 			//debug($this->request->data);
-			if ($this->request->data['SecondStage']['number_of_order'] == '') {
-				unset($this->request->data['SecondStage']);
-			}
-			if ($this->Call->saveAssociated($this->request->data)) {
+			// if (isset($this->request->data['SecondStage']) && $this->request->data['SecondStage']['number_of_order'] == '') {
+			// 	unset($this->request->data['SecondStage']);
+			// }
+			if ($this->Call->saveAll($this->request->data)) {
 				if (!empty($this->request->data['Call']['notified'])) {
-					$this->Call->send_email_notification($this->request->data['Call']['notified'], null, $id, 'notify');	
+					$this->Call->SendEmailNotification($this->request->data['Call']['notified'], null, $id, 'notify');	
 				}
 				if (!empty($this->data['CallsDetail'])) {
-					$this->Call->send_email_notification($this->request->data['CallsDetail'], null, $id, 'edit_call');	
+					$this->Call->SendEmailNotification($this->request->data['CallsDetail'], null, $id, 'edit_call');	
 				}
 				$this->Session->setFlash('Изменения сохранены', 'message', array('heading' => 'Успех', 'class' => 'alert alert-success span3'));
 				$this->redirect(array('action' => 'view', $id));
@@ -126,6 +130,7 @@ class CallsController extends AppController {
 			}
 		} else {
 			$this->data = $this->Call->read(null, $id);
+			//debug($this->data);
 			$close_date = $this->Call->field('close_date');
 			$this->set(compact('close_date'));
 		}
@@ -138,7 +143,7 @@ class CallsController extends AppController {
 				$NewCallsDetail = array('user_sid' => $this->request->data['CallsDetail']['user_sid_next'], 'order' => $count_order + 1, 'call_id' => $this->request->data['CallsDetail']['call_id']);
 				$this->Call->CallsDetail->create();
 				$this->Call->CallsDetail->save($NewCallsDetail);
-				$this->Call->send_email_notification($this->request->data['CallsDetail']['user_sid_next'], $count_order + 1, $this->request->data['CallsDetail']['call_id'], 'call_comment');
+				$this->Call->SendEmailNotification($this->request->data['CallsDetail']['user_sid_next'], $count_order + 1, $this->request->data['CallsDetail']['call_id'], 'call_comment');
 			}
 			unset($this->request->data['CallsDetail']['user_sid_next']);
 			$this->Call->CallsDetail->id = $this->request->data['CallsDetail']['id'];

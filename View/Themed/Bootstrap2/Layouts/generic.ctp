@@ -32,14 +32,15 @@
 	echo $this->Html->meta('icon');
 
 	//echo $this->Html->css('cake.generic');
-	echo $this->Html->css('bootstrap');
+	echo $this->Html->css('bootstrap.min');
 	echo $this->Html->css('style');
 	//echo $this->Html->css('bootstrap-responsive');
 	echo $this->Html->css('token-input-facebook');
 	echo $this->Html->css('jquery-ui-custom-theme/jquery-ui-custom');
-	echo $this->Html->script('jquery.js');
-	echo $this->Html->script('jquery-ui.custom.js');
+	echo $this->Html->script('jquery.min.js');
+	echo $this->Html->script('jquery-ui.custom.min.js');
 	echo $this->Html->script('jquery.tokeninput.js');
+	echo $this->Html->script('bootstrap.min.js');
 	echo $this->fetch('css');
 	echo $this->fetch('script');
 ?>
@@ -57,9 +58,10 @@
 		<?php echo $this->element('navbar'); ?>
 	
 			<div class="container">
-			<?php echo $this->Session->flash(); ?>
-			<?php echo $this->fetch('content'); ?>
+				<?php echo $this->Session->flash(); ?>
+				<?php echo $this->fetch('content'); ?>
 			</div> <!-- /container -->
+			<div class="row">&nbsp;</div>
 			<div id="push"></div>
 	</div>
 		<footer>
@@ -70,7 +72,7 @@
 		<!-- Le javascript
 		================================================== -->
 		<!-- Placed at the end of the document so the pages load faster -->
-		<?php echo $this->Html->script('bootstrap.js');?>
+		<?php //echo $this->Html->script('bootstrap.min.js');?>
 	<?php echo $this->element('sql_dump'); ?>
 	</body>
 </html>

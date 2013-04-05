@@ -51,7 +51,7 @@ class UsersController extends AppController {
 			$this->User->create();
 			if ($this->User->save($this->request->data)) {
 				$id = $this->User->id;
-				$this->request->data['User'] = array_merge($this->request->data["User"], array('id' => $id));
+				$this->request->data['User'] = array_merge($this->request->data['User'], array('id' => $id));
 				$this->Auth->login($this->request->data['User']); // Логиним пользователя после регистрации
 				$this->Session->setFlash('Регистрация прошла успешно', 'message', array('class' => 'alert alert-success span2'));
 				$this->redirect('/');

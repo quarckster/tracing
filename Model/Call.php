@@ -44,13 +44,19 @@ class Call extends AppModel {
 			),
 		)
 	);
-	public $hasOne = 'SecondStage';
+	//public $hasOne = 'SecondStage';
 	
 	var $hasMany = array(
 		'CallsDetail' => array(
 			'className' => 'CallsDetail',
 			'foreignKey' => 'call_id',
-			'order' =>  'CallsDetail.order ASC',			
+			'order' =>  'CallsDetail.order ASC',
+			'dependent' => true
+		),
+		'SecondStage' => array(
+			'className' => 'SecondStage',
+			'foreignKey' => 'call_id',
+			'order' =>  'SecondStage.id ASC',
 			'dependent' => true
 		)
 	);
@@ -97,14 +103,14 @@ class Call extends AppModel {
 	}
 	
 	function findByName($data = array()) {
-		$user_sid = $this->GetSidFromName($data['user_sid']);
+		$user_sid = ClassRegistry::init('User')->GetSidFromName($data['user_sid']);
 		return $user_sid;
 	}
 
 	function afterFind($results) {
 		foreach ($results as $key => $val) {
 			if ((isset($val['Call']['user_sid']) && ($val['Call']['user_sid'] != ''))) {
-				$results[$key]['Call']['user_sid'] = $this->GetNameFromSid($val['Call']['user_sid']);
+				$results[$key]['Call']['user_sid'] = ClassRegistry::init('User')->GetNameFromSid($val['Call']['user_sid']);
 			}
 			if (isset($val['Call']['open_date'])) {
 				$timestamp = strtotime($results[$key]['Call']['open_date']);
@@ -118,26 +124,9 @@ class Call extends AppModel {
 		return $results;
 	}
 
-	function GetNameFromSid($results) {
-		set_time_limit(0);
-		$base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
-		if (!($connect = @ldap_connect("ldap://10.188.0.10")))
-			die("Could not connect to ldap server");
-		if (!($bind = @ldap_bind($connect, "ARIC188\addst", "addstaric188")))
-			die("Unable to bind to server");
-		if ($connect) {
-			$filter = "(objectSid=" . $results . ")";
-			$sr = ldap_search($connect, $base_dn, $filter);
-			$entries = ldap_get_entries($connect, $sr);
-			$results = iconv('cp1251', 'utf-8', $entries[0]['displayname'][0]);
-			ldap_close($connect);
-		}
-	    	return $results;
-	}
-
 	function beforeSave($options) {
 		if (!empty($this->data['Call']['user_sid'])) {
-			$this->data['Call']['user_sid'] = $this->GetSidFromName($this->data['Call']['user_sid']);
+			$this->data['Call']['user_sid'] = ClassRegistry::init('User')->GetSidFromName($this->data['Call']['user_sid']);
 		}
 		if (!empty($this->data['Call']['notified']) && !empty($this->data['Call']['id'])) {
 			$notified_in_base = $this->field('notified', array('id' => $this->data['Call']['id']));
@@ -158,45 +147,7 @@ class Call extends AppModel {
 		return true;
 	}
 
-	function GetSidFromName($displayname) {
-		set_time_limit(0);
-		$USERNAMETOSEARCH = iconv('utf-8', 'cp1251', $displayname);
-
-	// Set the base dn to search the entire directory.
-		$base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
-	// connect to server
-		if (!($connect = @ldap_connect("ldap://10.188.0.10")))
-			die("Could not connect to ldap server");
-	// bind to server
-		if (!($bind = @ldap_bind($connect, "*", "*")))
-			die("Unable to bind to server");
-		if ($connect) {
-			$filter = "(displayname=" . $USERNAMETOSEARCH . ")";
-			$sr = ldap_search($connect, $base_dn, $filter);
-			$entries = ldap_get_entries($connect, $sr);
-
-		// All SID's begin with S-
-			$sid = "S-";
-		// Convert Bin to Hex and split into byte chunks
-			$sidinhex = str_split(bin2hex($entries[0]['objectsid'][0]), 2);
-		// Byte 0 = Revision Level
-			$sid = $sid . hexdec($sidinhex[0]) . "-";
-		// Byte 1-7 = 48 Bit Authority
-			$sid = $sid . hexdec($sidinhex[6] . $sidinhex[5] . $sidinhex[4] . $sidinhex[3] . $sidinhex[2] . $sidinhex[1]);
-		// Byte 8 count of sub authorities - Get number of sub-authorities
-			$subauths = hexdec($sidinhex[7]);
-		// Loop through Sub Authorities
-			for ($i = 0; $i < $subauths; $i++) {
-				$start = 8 + (4 * $i);
-			    // X amount of 32Bit (4 Byte) Sub Authorities
-				$sid = $sid . "-" . hexdec($sidinhex[$start + 3] . $sidinhex[$start + 2] . $sidinhex[$start + 1] . $sidinhex[$start]);
-			}
-		ldap_close($connect);
-	    }
-	    return $sid;
-	}
-
-	public function send_email_notification($displayname, $order, $call_id, $type) {
+	public function SendEmailNotification($displayname, $order, $call_id, $type) {
 		$call = $this->read(null, $call_id);
 		$email = new CakeEmail();
 		$email->config('default');
@@ -204,7 +155,7 @@ class Call extends AppModel {
 		if ($type == 'new_call') {
 			$recipient = array();
 			for ($i = 1; $i <= count($displayname); $i++){
-				$recipient[] = $this->CallsDetail->get_email_from_name($displayname[$i]['user_sid']);
+				$recipient[] = ClassRegistry::init('User')->GetEmailFromName($displayname[$i]['user_sid']);
 			}
 			$subj = 'Оставьте свой комментарий';
 			$email->subject($subj)
@@ -216,7 +167,7 @@ class Call extends AppModel {
 			$recipient = array();
 			for ($i = 0; $i <= count($displayname) - 1; $i++){
 				if (!isset($displayname[$i]['id'])) { // Исключаем людей, которые уже были в участниках обращения
-					$recipient[] = $this->CallsDetail->get_email_from_name($displayname[$i]['user_sid']);
+					$recipient[] = ClassRegistry::init('User')->GetEmailFromName($displayname[$i]['user_sid']);
 				}
 			}
 			$subj = 'Оставьте свой комментарий';
@@ -227,7 +178,7 @@ class Call extends AppModel {
 		}
 		if ($type == 'call_comment') {
 			unset($recipient);
-			$recipient = $this->CallsDetail->get_email_from_name($displayname);
+			$recipient = ClassRegistry::init('User')->GetEmailFromName($displayname);
 			$subj = 'Оставьте свой комментарий по ссылке';
 			$calls_detail_id = $this->set('calls_detail_id', $this->CallsDetail->field('id', array('call_id' => $call_id, 'order' => $order)));
 			$email->subject($subj)
@@ -241,7 +192,7 @@ class Call extends AppModel {
 			unset($recipient);
 			$recipient = array();
 			foreach ($exploded_displayname as $name){
-				$recipient[] = $this->CallsDetail->get_email_from_name($name);
+				$recipient[] = ClassRegistry::init('User')->GetEmailFromName($name);
 			}
 			$subj = 'Уведомление об обращении клиента';
 			$email->subject($subj)
@@ -252,26 +203,27 @@ class Call extends AppModel {
 	}
 
 	public function getStatsData($start, $end) {
-		$stats['Сбой']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Сбой'), 'recursive' => -1));
-		$stats['Демо']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо'), 'recursive' => -1));
-		$stats['Инф.']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Инф.'), 'recursive' => -1));
-		$stats['ЗД']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД'), 'recursive' => -1));
-		$stats['КФВ']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ'), 'recursive' => -1));
-		$stats['ЗД']['Звонок'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'Звонок'), 'recursive' => -1));
-		$stats['ЗД']['Сайт'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'Сайт'), 'recursive' => -1));
-		$stats['ЗД']['СИО'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'СИО'), 'recursive' => -1));
-		$stats['ЗД']['Визит'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'Визит'), 'recursive' => -1));
-		$stats['ЗД']['Email'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'Email'), 'recursive' => -1));
-		$stats['Демо']['Звонок'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'Звонок'), 'recursive' => -1));
-		$stats['Демо']['Сайт'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'Сайт'), 'recursive' => -1));
-		$stats['Демо']['СИО'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'СИО'), 'recursive' => -1));
-		$stats['Демо']['Визит'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'Визит'), 'recursive' => -1));
-		$stats['Демо']['Email'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'Email'), 'recursive' => -1));
-		$stats['КФВ']['Звонок'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'Звонок'), 'recursive' => -1));
-		$stats['КФВ']['Сайт'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'Сайт'), 'recursive' => -1));
-		$stats['КФВ']['СИО'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'СИО'), 'recursive' => -1));
-		$stats['КФВ']['Визит'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'Визит'), 'recursive' => -1));
-		$stats['КФВ']['Email'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'Email'), 'recursive' => -1));
+		$this->recursive = -1;
+		$stats['Сбой']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Сбой')));
+		$stats['Демо']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо')));
+		$stats['Инф.']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Инф.')));
+		$stats['ЗД']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД')));
+		$stats['КФВ']['overall'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ')));
+		$stats['ЗД']['Звонок'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'Звонок')));
+		$stats['ЗД']['Сайт'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'Сайт')));
+		$stats['ЗД']['СИО'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'СИО')));
+		$stats['ЗД']['Визит'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'Визит')));
+		$stats['ЗД']['Email'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'ЗД', 'delivery' => 'Email')));
+		$stats['Демо']['Звонок'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'Звонок')));
+		$stats['Демо']['Сайт'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'Сайт')));
+		$stats['Демо']['СИО'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'СИО')));
+		$stats['Демо']['Визит'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'Визит')));
+		$stats['Демо']['Email'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'Демо', 'delivery' => 'Email')));
+		$stats['КФВ']['Звонок'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'Звонок')));
+		$stats['КФВ']['Сайт'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'Сайт')));
+		$stats['КФВ']['СИО'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'СИО')));
+		$stats['КФВ']['Визит'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'Визит')));
+		$stats['КФВ']['Email'] = $this->find('count', array('conditions' => array('Call.open_date BETWEEN ? and ?' => array($start, $end), 'category' => 'КФВ', 'delivery' => 'Email')));
 		return $stats;
 	}
 }

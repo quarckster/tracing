@@ -63,9 +63,9 @@ class DATABASE_CONFIG {
 		'datasource' => 'Database/Mysql',
 		'persistent' => false,
 		'host' => '127.0.0.1',
-		'login' => '*',
-		'password' => '*',
-		'database' => '*',
+		'login' => 'tracing',
+		'password' => 'tracing',
+		'database' => 'tracing2',
 		'prefix' => '',
 		'encoding' => 'utf8',
 	);

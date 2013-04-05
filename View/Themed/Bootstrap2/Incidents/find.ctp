@@ -9,7 +9,7 @@
 			echo $this->Form->input('Incident.number_to', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Номер ТО'));
 			echo $this->Form->input('Incident.exp_date', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Дата исполнения', 'type' => 'text'));
 			echo $this->Form->input('Incident.content', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Содержание'));
-			echo $this->Form->input('user_sid', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Имя участника'));
+			echo $this->Form->input('user_sid', array('div' => array('class' => 'span2'), 'autocomplete' => 'off', 'class' => 'span2', 'label' => 'Имя участника'));
 			echo $this->Form->input('filter', array( 'class' => 'span2', 'label' => 'Где искать', 'div' => array('class' => 'span2'), 'options' => array(null => 'Все входящие', 'in_progress' => 'В работе', 'archive' => 'Архив', 'delayed' => 'Просроченные', 'delayed_in_progress' => 'Просроченные в обработке', 'debt' => 'Об отключении за долги')));?>
 		</div>
 		<div class="row">
@@ -21,7 +21,7 @@
 			echo $this->Form->end(array('class' => 'btn btn-primary btn-large', 'label' => 'Найти', 'div' => array('class' => 'span2')));?>
 		</div>
 <?php } ?>
-	<div class="row">
+	<div class="row">	
 			<?php if (isset($this->params['named']['filter']) && $this->params['named']['filter'] == 'archive')
 				echo '<h2>Архив</h2>';
 			if (isset($this->params['named']['filter']) && $this->params['named']['filter'] == 'delayed')
@@ -76,7 +76,7 @@
 	<?php echo $this->element('pagination');
 	//endif; ?>
 </div>
-<script language="javascript" type="text/javascript">
+<script>
 	$("input#IncidentUserSid").autocomplete({
 		source: "/adnames.php",
 		minLength: 2
@@ -119,5 +119,5 @@
 			showMonthAfterYear: false,
 			yearSuffix: ''};
 		$.datepicker.setDefaults($.datepicker.regional['ru']);
-	});              
+	});
 </script>

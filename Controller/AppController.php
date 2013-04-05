@@ -36,13 +36,15 @@ class AppController extends Controller {
 
 	public $theme = 'Bootstrap2';
 	public $layout = 'generic';
+	//public $helpers = array('Js' => array('Jquery');
+	public $helpers = array('Html','Form','Session','Js' => array('Jquery'),'Paginator');
 	public $components = array(
 		'Session',
 		'Auth' => array(
 			'loginRedirect' => array('controller' => 'pages', 'action' => 'index'),
 			'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
-		        'authorize' => array('Controller'),
-		        'authError' => 'У вас нет доступа к этому разделу.'
+				'authorize' => array('Controller'),
+				'authError' => 'У вас нет доступа к этому разделу.'
 		)
 	);
 
@@ -55,7 +57,11 @@ class AppController extends Controller {
 	}
 
 	public function beforeFilter() {
-		$this->Auth->allow('user_filter', 'history', 'index', 'find', 'display', 'view', 'edit_comment', 'change_state');
+		$this->Auth->allow('user_filter', 'history', 'index', 'find', 'display', 'view', 'edit_comment', 'change_state', 'add');
+		if ($this->Auth->user('id') == 1) {
+			Configure::write('debug', 2);
+			$this->components[] = 'DebugKit.Toolbar';
+		}
 	}
 
 }

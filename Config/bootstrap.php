@@ -123,4 +123,4 @@ Cache::config('default', array('engine' => 'File'));
  *
  */
 CakePlugin::loadAll(); // Loads all plugins at once
-Configure::write('debug', 0);
+// Configure::write('debug', 2);

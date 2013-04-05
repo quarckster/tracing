@@ -16,25 +16,35 @@
 	<col width="auto" />
 	<col width="auto" />
 	<col width="auto" />
-	<col width="120" />
+	<col width="auto" />
+	<col width="auto" />
+	<col width="auto" />
+	<col width="auto" />
+	<col width="auto" />
 	<thead>
 		<tr>
 				<th>Номер заказа</th>
-				<th>Дата получения</th>
-				<th>Дата отправки клиенту</th>
-				<th>Доставка</th>
+				<th>Заказ в</th>
 				<th>Контактные данные</th>
+				<th>Дата обращения</th>
+				<th>Дата отправки заявки</th>
+				<th>Дата отправки ответа</th>
+				<th>Способ передачи</th>
 				<th>Реквизиты</th>
+				<th>Результат</th>
 		</tr>
 	</thead>
 	<?php foreach ($secondStageArchives as $SecondStageArchive): ?>
 	<tr>
 		<td><?php echo h($SecondStageArchive['SecondStageArchive']['order_number']); ?>&nbsp;</td>
+		<td><?php echo h($SecondStageArchive['SecondStageArchive']['order_in']); ?>&nbsp;</td>
+		<td><?php echo h($SecondStageArchive['SecondStageArchive']['contact_data']); ?>&nbsp;</td>
 		<td><?php echo h($SecondStageArchive['SecondStageArchive']['receive_date']); ?>&nbsp;</td>
 		<td><?php echo h($SecondStageArchive['SecondStageArchive']['send_date']); ?>&nbsp;</td>
+		<td><?php echo h($SecondStageArchive['SecondStageArchive']['send_to_client_date']); ?>&nbsp;</td>
 		<td><?php echo h($SecondStageArchive['SecondStageArchive']['delivery']); ?>&nbsp;</td>
-		<td><?php echo h($SecondStageArchive['SecondStageArchive']['contact_data']); ?>&nbsp;</td>
 		<td><?php echo h($SecondStageArchive['SecondStageArchive']['requisites']); ?>&nbsp;</td>
+		<td><?php echo h($SecondStageArchive['SecondStageArchive']['result']); ?>&nbsp;</td>
 	</tr>
 	<?php endforeach; ?>
 </table>

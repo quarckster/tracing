@@ -37,7 +37,8 @@
 	<?php echo $this->Form->input('actions', array('type' => 'text', 'div' => array('class' => 'span10'), 'class' => 'span10', 'value' => $this->data['Call']['actions'], 'label' => 'Предпринятые действия'));?>
 </div>
 <div class="row">
-	<?php echo $this->Form->input('cis_template', array('div' => array('class' => 'span2'), 'value' => $this->data['Call']['cis_template'], 'label' => array('class' => 'checkbox inline', 'text' => 'Шаблон в КИС'), 'type' => 'checkbox'));
+	<?php 
+	echo $this->Form->input('cis_template', array('label' => 'Шаблон в КИС', 'div' => array('class' => 'span2'), 'class' => 'span2', 'value' => $this->data['Call']['cis_template'], 'options' => array(0 => 'Без шаблона', 1 => 'С шаблоном', 2 => 'Шаблон не нужен')));
 	echo $this->Form->input('control', array('div' => array('class' => 'span2'), 'value' => $this->data['Call']['control'], 'label' => array('class' => 'checkbox inline', 'text' => 'На контроль'), 'type' => 'checkbox'));?>
 </div>
 <?php if (!empty($this->data['Call']['notified'])):?>

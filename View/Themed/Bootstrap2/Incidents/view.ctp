@@ -1,9 +1,9 @@
 <div>
 	<div class="row">
-		<div class="span4">
+		<div class="span4 offset2">
 			<h2>Входящее <?php echo $incident['Incident']['incoming_num']; ?></h2>
 		</div>
-		<div class="offset4 span4">
+		<div class="span4">
 			<div class="btn-group pull-right">
 			<?php echo $this->Html->link('<i class="icon-edit"> </i> Редактировать', array('action' => 'edit', $incident['Incident']['id']), array('class' => 'btn', 'escape' => false));
 			 	  echo $this->Html->link('<i class="icon-list-alt"> </i> Ревизии', array('action' => 'history', $incident['Incident']['id']), array('class' => 'btn', 'escape' => false));?>
@@ -12,7 +12,7 @@
 	</div>
 	<dl>
 		<div class="row">
-			<div class="span2">
+			<div class="span2 offset2">
 				<dt>Дата регистрации</dt>
 				<dd>
 					<?php echo $incident['Incident']['start_date']; ?>
@@ -24,13 +24,15 @@
 					<?php echo $incident['Incident']['exp_date']; ?>
 				</dd>
 			</div>
-			<div class="span2">
+			<?php if (!empty($incident['Incident']['number_to'])):?>
+			<div class="span1">
 				<dt>Номер ТО</dt>
 				<dd>
 					<?php echo $incident['Incident']['number_to']; ?>
 				</dd>
 			</div>
-			<div class="span6">
+			<?php endif;?>
+			<div class="span3">
 				<dt>Содержание</dt>
 				<dd>
 					<?php echo $incident['Incident']['content']; ?>
@@ -41,7 +43,7 @@
 		&nbsp;
 		</div>
 		<div class="row">
-			<div class="span12">
+			<div class="span8 offset2">
 				<dt>Организация</dt>
 				<dd>
 					<?php echo $incident['Incident']['organization']; ?>
@@ -63,7 +65,7 @@
 				}
 			endforeach;
 			if (!empty($notified)):?>
-			<div class="span12">
+			<div class="span8 offset2">
 				<dt>Уведомлены</dt>
 				<dd>
 					<?php echo implode(", ", $notified); ?>
@@ -75,7 +77,7 @@
 </div>
 <?php if ($i != 0):?>
 <div class="row">
-	<div class="span12">
+	<div class="span8 offset2">
 		<h3>Комментарии</h3>
 		<table class="table table-striped table-bordered table-condensed">
 			<thead>
@@ -119,13 +121,6 @@
 				endforeach; ?>
 			</tr>
 		</table>
-	<!--
-		<div class="actions">
-			<ul>
-				<li><?php echo $this->Html->link(__('Доработать входящее', true), array('controller' => 'details', 'action' => 'add'));?> </li>
-			</ul>
-		</div>
-	-->
 	</div>
 </div>
 <?php endif; ?>

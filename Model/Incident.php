@@ -80,8 +80,8 @@ class Incident extends AppModel {
 
 	public function findByName($data = array()) {
 		$this->Detail->Behaviors->attach('Search.Searchable');
-		$user_sid = $this->GetSidFromName($data['user_sid']);
-		if ($data['filter'] == 'in_progress') {
+		$user_sid = ClassRegistry::init('User')->GetSidFromName($data['user_sid']);
+		if (isset($data['filter']) && $data['filter'] == 'in_progress') {
 			$query = $this->Detail->getQuery('all', array(
 				'conditions' => array('Detail.user_sid'  => $user_sid, 'Detail.comment' => ''),
 				'fields' => array('incident_id')
@@ -104,7 +104,7 @@ class Incident extends AppModel {
 			$this->data['Incident']['exp_date'] = date('Y-m-d', strtotime($this->data['Incident']['exp_date']));
 		}
 		if (!empty($this->data['Incident']['start_date'])) {
-			$this->data['Incident']['start_date'] = date('Y-m-d', strtotime($this->data['Incident']['start_date']));
+			$this->data['Incident']['start_date'] = date('Y-m-d H:m', strtotime($this->data['Incident']['start_date']));
 		}
 		return true;
 	}
@@ -137,7 +137,7 @@ class Incident extends AppModel {
 	}
 
 	public function user_filter($user_sid) {
-		$user_sid = $this->GetSidFromName($user_sid);
+		$user_sid = ClassRegistry::init('User')->GetSidFromName($user_sid);
 		$this->query('CREATE TEMPORARY TABLE temp_details1 (id int(11) NOT NULL AUTO_INCREMENT, detail_id int(11) NOT NULL, PRIMARY KEY(id));');
 		$this->query('INSERT INTO temp_details1 (detail_id) SELECT id-1 AS id FROM details WHERE user_sid ="'.$user_sid.'" AND comment_date IS NULL AND comment = "" AND notify_only = 0;');
 		$this->query('CREATE TEMPORARY TABLE temp_details (id int(11) NOT NULL AUTO_INCREMENT, incident_id int(11) NOT NULL, PRIMARY KEY(id));');
@@ -185,7 +185,7 @@ class Incident extends AppModel {
 				'alias' => 'Incident',
 				'type' => 'INNER',
 				'conditions' => array('TempDetail.incident_id = Incident.id', 'Detail.comment_date IS NULL', 'Incident.exp_date >= CURDATE()')
-			    	)
+			    )
 			);
 			$query = ClassRegistry::init('TempDetail')->getQuery('all', array('joins' => $b, 'fields' => array('Incident.id')));
 		}
@@ -247,7 +247,7 @@ class Incident extends AppModel {
 		return $query;
 	}
 
-	public function send_email_notification($displayname, $detail_id, $incident_id, $type) {
+	public function SendEmailNotification($displayname, $detail_id, $incident_id, $type) {
 		$incident = $this->read(null, $incident_id);
 		$email = new CakeEmail();
 		$email->config('default');
@@ -256,7 +256,7 @@ class Incident extends AppModel {
 			$recipient = array();
 			for ($i = 2; $i <= count($displayname); $i++):
 				if ($displayname[$i]['notify_only'] == 0) {
-					$recipient[] = $this->Detail->get_email_from_name($displayname[$i]['user_sid']);
+					$recipient[] = ClassRegistry::init('User')->GetEmailFromName($displayname[$i]['user_sid']);
 				}
 			endfor;
 			$subj = "Новое входящее. Номер ТО {$incident['Incident']['number_to']}. {$incident['Incident']['content']}";
@@ -267,7 +267,7 @@ class Incident extends AppModel {
 		}
 		if (($type == 'new_mail') && ($displayname['1']['notify_only'] == 0)) { //отправляем уведомление первому участнику маршрута о том, что необходимо оставить комментарий. Первый участник не должен быть в списке тех, кто не комментирует
 			unset($recipient);
-			$recipient = $this->Detail->get_email_from_name($displayname['1']['user_sid']);
+			$recipient = ClassRegistry::init('User')->GetEmailFromName($displayname['1']['user_sid']);
 			$subj = "Оставьте свой коммен­тарий. Номер ТО {$incident['Incident']['number_to']}. {$incident['Incident']['content']}";
 			$email->subject($subj)
 				->viewVars(array('detail_id' => $this->Detail->field('id', array('incident_id' => $incident_id, 'comment_id' => '1'))))
@@ -280,7 +280,7 @@ class Incident extends AppModel {
 			$recipient = array();
 			for ($i = 1; $i <= count($displayname); $i++):
 				if ($displayname[$i]['notify_only'] == 1) {
-					$recipient[] = $this->Detail->get_email_from_name($displayname[$i]['user_sid']);
+					$recipient[] = ClassRegistry::init('User')->GetEmailFromName($displayname[$i]['user_sid']);
 				}
 			endfor;
 			if (!empty($recipient)) {
@@ -292,7 +292,7 @@ class Incident extends AppModel {
 			}
 		}
 		if ($type == 'new_comment') {
-			$recipient = $this->Detail->get_email_from_name($displayname);
+			$recipient = ClassRegistry::init('User')->GetEmailFromName($displayname);
 			$subj = "Оставьте свой коммен­тарий. Номер ТО {$incident['Incident']['number_to']}";
 			$email->subject($subj)
 				->viewVars(array('detail_id' => $detail_id))
@@ -301,7 +301,7 @@ class Incident extends AppModel {
 				->send();
 		}
 		if ($type == 'edit_incident') {
-			$recipient = $this->Detail->get_email_from_name($displayname);
+			$recipient = ClassRegistry::init('User')->GetEmailFromName($displayname);
 			$subj = "Входящее письмо было отредактировано. Номер ТО {$incident['Incident']['number_to']}";
 			$email->subject($subj)
 				->viewVars(array('detail_id' => $detail_id))
@@ -310,44 +310,7 @@ class Incident extends AppModel {
 				->send();
 		}
 	}
-
-	public function GetSidFromName($displayname) {
-	    set_time_limit(0);
-	    $USERNAMETOSEARCH = iconv('utf-8', 'cp1251', $displayname);
-
-	// Set the base dn to search the entire directory.
-	    $base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
-	// connect to server
-	    if (!($connect = @ldap_connect("ldap://10.188.0.10")))
-		die("Could not connect to ldap server");
-	// bind to server
-	    if (!($bind = @ldap_bind($connect, "*", "*")))
-		die("Unable to bind to server");
-	    if ($connect) {
-		$filter = "(displayname=" . $USERNAMETOSEARCH . ")";
-		$sr = ldap_search($connect, $base_dn, $filter);
-		$entries = ldap_get_entries($connect, $sr);
-
-	// All SID's begin with S-
-		$sid = "S-";
-	// Convert Bin to Hex and split into byte chunks
-		$sidinhex = str_split(bin2hex($entries[0]['objectsid'][0]), 2);
-	// Byte 0 = Revision Level
-		$sid = $sid . hexdec($sidinhex[0]) . "-";
-	// Byte 1-7 = 48 Bit Authority
-		$sid = $sid . hexdec($sidinhex[6] . $sidinhex[5] . $sidinhex[4] . $sidinhex[3] . $sidinhex[2] . $sidinhex[1]);
-	// Byte 8 count of sub authorities - Get number of sub-authorities
-		$subauths = hexdec($sidinhex[7]);
-	// Loop through Sub Authorities
-		for ($i = 0; $i < $subauths; $i++) {
-		    $start = 8 + (4 * $i);
-		    // X amount of 32Bit (4 Byte) Sub Authorities
-		    $sid = $sid . "-" . hexdec($sidinhex[$start + 3] . $sidinhex[$start + 2] . $sidinhex[$start + 1] . $sidinhex[$start]);
-		}
-		ldap_close($connect);
-	    }
-	    return $sid;
-	}
+	
 	public function getStatsData($start, $end) {
 		$stats = $this->find('count', array('conditions' => array('Incident.start_date BETWEEN ? and ?' => array($start, $end)), 'recursive' => -1));
 		return $stats;

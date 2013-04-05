@@ -10,7 +10,7 @@ $base_dn = "CN=Users,DC=aric188,DC=khakassia,DC=ru";
 if (!($connect = @ldap_connect("ldap://10.188.0.10")))
     die("Could not connect to ldap server");
 // bind to server
-if (!($bind = @ldap_bind($connect, "*", "*")))
+if (!($bind = @ldap_bind($connect, "ARIC188\addst", "addstaric188")))
     die("Unable to bind to server");
 if ($connect) {
     $term = ($_GET['term']);

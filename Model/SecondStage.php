@@ -4,7 +4,7 @@ App::uses('AppModel', 'Model');
  * SecondStage Model
  *
  * @property Result $Result
- * @property PrelimiaryResponse $PrelimiaryResponse
+ * @property PreliminaryResponse $PreliminaryResponse
  */
 class SecondStage extends AppModel {
 /**
@@ -74,9 +74,53 @@ class SecondStage extends AppModel {
 
 	var $filterArgs = array(
 		array('name' => 'order_number', 'type' => 'value'),
+		array('name' => 'filter', 'type' => 'subquery', 'method' => 'filterOrderIn', 'field' => 'SecondStage.id'),
+		array('name' => 'order_in', 'type' => 'value'),
+		array('name' => 'category', 'type' => 'value')
 	);
 
-	function afterFind($results) {
+	public function filterOrderIn($data = array()) {
+		if ($data['filter'] == 'not_closed') {
+			// $query = $this->getQuery('all',	array(
+			// 		'recursive' => -1,
+			// 		'conditions' => array('Result.id' => null),
+			// 		'joins' => array(array(
+			// 			'table' => 'result',
+			// 			'alias' => 'Result',
+			// 			'type' => 'LEFT',
+			// 			'conditions' => array('SecondStage.id = Result.second_stage_id')
+			// 			)
+			// 		),
+			// 		'fields' => array('SecondStage.id')
+			// 	)
+			// );
+			return 'SELECT `SecondStage`.`id` FROM `tracing2`.`second_stage` AS `SecondStage` LEFT JOIN `tracing2`.`result` AS `Result` ON (`Result`.`second_stage_id` = `SecondStage`.`id`) WHERE `Result`.`id` IS NULL';
+		}
+		if ($data['filter'] == 'without_cis') {
+			// $query = $this->getQuery('all', array(
+			// 	'fields' => array('SecondStage.id'),
+			// 	'recursive' => 0,
+			// 	'conditions' => array('OR' => array('PreliminaryResponse.cis' => 0, 'Result.cis' => 0)),
+			// 	'joins' => array(array(
+			// 			'table' => 'result',
+			// 			'alias' => 'Result',
+			// 			'type' => 'LEFT',
+			// 			'conditions' => array('SecondStage.id = Result.second_stage_id')
+			// 			), array(
+			// 			'table' => 'preliminary_response',
+			// 			'alias' => 'PreliminaryResponse',
+			// 			'type' => 'LEFT',
+			// 			'conditions' => array('SecondStage.id = PreliminaryResponse.second_stage_id')
+			// 			)
+			// 		)
+			// 	)
+			// );
+			// return $query;
+			return 'SELECT `SecondStage`.`id` FROM `tracing2`.`second_stage` AS `SecondStage`  LEFT JOIN `tracing2`.`result` AS `Result` ON (`Result`.`second_stage_id` = `SecondStage`.`id`)LEFT JOIN `tracing2`.`preliminary_response` AS `PreliminaryResponse` ON (`PreliminaryResponse`.`second_stage_id` = `SecondStage`.`id`) WHERE (`PreliminaryResponse`.`cis` = 0 OR `Result`.`cis` = 0) GROUP BY `SecondStage`.`id`';
+		}
+	}
+
+	public function afterFind($results) {
 		foreach ($results as $key => $val) {
 			if (isset($val['SecondStage']['date'])) {
 				$timestamp = strtotime($results[$key]['SecondStage']['date']);
