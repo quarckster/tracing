@@ -1,0 +1,174 @@
+2012-03-29 10:07:13 Ldap.error: Query Params Failed:Array
+(
+    [conditions] => cn=misharovdn
+    [fields] => Array
+        (
+            [0] => *
+            [1] => 
+            [2] => +
+            [3] => 
+        )
+
+    [joins] => Array
+        (
+        )
+
+    [limit] => 1
+    [offset] => 
+    [order] => Array
+        (
+            [0] => 
+        )
+
+    [page] => 1
+    [group] => 
+    [callbacks] => 1
+    [type] => search
+    [targetDn] => ou=people,CN=Users,DC=aric188,DC=khakassia,DC=ru
+)
+ Error: No such object
+2012-03-29 10:07:16 Ldap.error: Query Params Failed:Array
+(
+    [conditions] => cn=misharovdn
+    [fields] => Array
+        (
+            [0] => *
+            [1] => 
+            [2] => +
+            [3] => 
+        )
+
+    [joins] => Array
+        (
+        )
+
+    [limit] => 1
+    [offset] => 
+    [order] => Array
+        (
+            [0] => 
+        )
+
+    [page] => 1
+    [group] => 
+    [callbacks] => 1
+    [type] => search
+    [targetDn] => ou=people,CN=Users,DC=aric188,DC=khakassia,DC=ru
+)
+ Error: No such object
+2012-03-29 10:08:34 Ldap.error: Query Params Failed:Array
+(
+    [conditions] => sAMAccountName=misharovdn
+    [fields] => Array
+        (
+            [0] => *
+            [1] => 
+            [2] => +
+            [3] => 
+        )
+
+    [joins] => Array
+        (
+        )
+
+    [limit] => 1
+    [offset] => 
+    [order] => Array
+        (
+            [0] => 
+        )
+
+    [page] => 1
+    [group] => 
+    [callbacks] => 1
+    [type] => search
+    [targetDn] => ou=people,CN=Users,DC=aric188,DC=khakassia,DC=ru
+)
+ Error: No such object
+2012-03-29 10:10:12 Ldap.error: Query Params Failed:Array
+(
+    [conditions] => sAMAccountName=misharovdn
+    [fields] => Array
+        (
+            [0] => *
+            [1] => 
+            [2] => +
+            [3] => 
+        )
+
+    [joins] => Array
+        (
+        )
+
+    [limit] => 1
+    [offset] => 
+    [order] => Array
+        (
+            [0] => 
+        )
+
+    [page] => 1
+    [group] => 
+    [callbacks] => 1
+    [type] => search
+    [targetDn] => ou=people,CN=Users,DC=aric188,DC=khakassia,DC=ru
+)
+ Error: No such object
+2012-03-29 10:11:18 Ldap.error: Query Params Failed:Array
+(
+    [conditions] => sAMAccountName=misharovdn
+    [fields] => Array
+        (
+            [0] => *
+            [1] => 
+            [2] => +
+            [3] => 
+        )
+
+    [joins] => Array
+        (
+        )
+
+    [limit] => 1
+    [offset] => 
+    [order] => Array
+        (
+            [0] => 
+        )
+
+    [page] => 1
+    [group] => 
+    [callbacks] => 1
+    [type] => search
+    [targetDn] => ou=people,CN=Users,DC=aric188,DC=khakassia,DC=ru
+)
+ Error: No such object
+2012-03-29 10:11:39 Ldap.error: Query Params Failed:Array
+(
+    [conditions] => sAMAccountName=misharovdn
+    [fields] => Array
+        (
+            [0] => *
+            [1] => 
+            [2] => +
+            [3] => 
+        )
+
+    [joins] => Array
+        (
+        )
+
+    [limit] => 1
+    [offset] => 
+    [order] => Array
+        (
+            [0] => 
+        )
+
+    [page] => 1
+    [group] => 
+    [callbacks] => 1
+    [type] => search
+    [targetDn] => ou=people,CN=Users,DC=aric188,DC=khakassia,DC=ru
+)
+ Error: No such object

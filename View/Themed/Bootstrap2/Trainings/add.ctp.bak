@@ -1,0 +1,48 @@
+<?php 
+echo $this->Form->create('Training');?>
+<div class="row">
+	<legend class="span10 offset1">Добавить заявку на обучение</legend>
+</div>
+<div class="row">
+	<?php echo $this->Form->input('Training.training_num', array('div' => array('class' => 'span1 offset1'), 'label' => 'Номер', 'class' => 'span1', 'type' => 'text'));
+	echo $this->Form->input('Training.user_sid', array('div' => array('class' => 'span2'), 'label' => 'Специалист', 'class' => 'span2'));
+	echo $this->Form->input('Training.purpose', array('div' => array('class' => 'span2'), 'label' => 'Цель обучения', 'class' => 'span2'));
+	echo $this->Form->input('Training.kind_training', array('div' => array('class' => 'span2'), 'label' => 'Вид обучения', 'class' => 'span2'));
+	echo $this->Form->input('Training.additional_info', array('div' => array('class' => 'span3'), 'label' => 'Дополнительная информация', 'class' => 'span3'));
+	?>
+</div>
+<div class="row">
+&nbsp;
+</div>
+<div class="row">
+	<?php echo $this->Form->input('Training.number_to', array('div' => array('class' => 'span1 offset1'), 'class' => 'span1', 'label' => 'Номер ТО', 'type' => 'text'));
+	echo $this->Form->input('Training.organization', array('div' => array('class' => 'span3'), 'class' => 'span3', 'label' => 'Организация', 'type' => 'textarea'));
+	echo $this->Form->input('Training.town', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Город'));
+	echo $this->Form->input('Training.address_fact', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Адрес'));
+	echo $this->Form->input('Training.transport', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Транспорт'));
+	?>
+</div>
+<div class="row">
+&nbsp;
+</div>
+<div class="row">
+	<?php echo $this->Form->input('Training.systems_set', array('div' => array('class' => 'span2 offset1'), 'class' => 'span2', 'label' => 'Комплект систем', 'type' => 'textarea'));
+	echo $this->Form->input('Training.amount', array('div' => array('class' => 'span1'), 'class' => 'span1', 'label' => 'Cумма'));
+	echo $this->Form->input('Training.competitors', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Конкуренты'));
+	echo $this->Form->input('Training.tso', array('div' => array('class' => 'span1'), 'class' => 'span1', 'label' => 'ТСО'));
+	echo $this->Form->input('Training.comfortable_time', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Удобное время'));
+	echo $this->Form->input('Training.not_comfortable_time', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Неудобное время'));
+	?>
+</div>
+<div class="row">
+&nbsp;
+</div>
+<div class="row">
+	<?php echo $this->Form->end(array('class' => 'btn btn-primary btn-medium', 'label' => 'Сохранить', 'div' => array('class' => 'span2 offset1')));?>
+</div>
+<script language="javascript" type="text/javascript">
+	$("input#TrainingUserSid").autocomplete({
+		source: "/adnames.php",
+		minLength: 2
+			});
+</script>
