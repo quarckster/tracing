@@ -23,11 +23,11 @@ echo $this->Form->create('Training');?>
 &nbsp;
 </div>
 <div class="row">
-	<?php echo $this->Form->input('Training.systems_set', array('div' => array('class' => 'span2 offset1'), 'class' => 'span2', 'label' => 'Комплект систем'));
+	<?php echo $this->Form->input('Training.systems_set', array('div' => array('class' => 'span3 offset1'), 'class' => 'span3', 'label' => 'Комплект систем'));
 	echo $this->Form->input('Training.amount', array('div' => array('class' => 'span1'), 'class' => 'span1', 'label' => 'Cумма'));
 	echo $this->Form->input('Training.competitors', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Конкуренты'));
 	echo $this->Form->input('Training.tso', array('div' => array('class' => 'span2'), 'class' => 'span2', 'label' => 'Оборудование', 'options' => array('Нет' => 'Нет', 'Ноутбук' => 'Ноутбук', 'Флеш' => 'Флеш')));
-	echo $this->Form->input('Training.additional_info', array('div' => array('class' => 'span3'), 'label' => 'Дополнительная информация', 'class' => 'span3'));?>
+	echo $this->Form->input('Training.additional_info', array('div' => array('class' => 'span2'), 'label' => 'Доп. информация', 'class' => 'span2'));?>
 </div>
 <div class="row">
 &nbsp;
